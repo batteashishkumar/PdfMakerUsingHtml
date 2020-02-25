@@ -19,72 +19,40 @@ import java.io.File;
 import java.util.List;
 
 public class Pdfviewer extends AppCompatActivity {
-    public static final String SAMPLE_FILE = "ash.pdf"; //your file path
     PDFView pdfView;
-    Integer pageNumber = 0;
-    String pdfFileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pdfviewer);
         pdfView= (PDFView)findViewById(R.id.pdfView);
-//        displayFromAsset(SAMPLE_FILE);
-        pdfView.fromAsset("sample.pdf").load();
+
+        final File file = new File(Environment.getExternalStorageDirectory().getAbsoluteFile()+"/ash.pdf");
+        pdfView.fromFile(file).defaultPage(1).load();
+
+
         findViewById(R.id.btnshare).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Uri uri = FileProvider.getUriForFile(Pdfviewer.this, Pdfviewer.this.getPackageName() + ".provider", file);
+                try {
+                    Intent share = new Intent();
+                    share.setAction(Intent.ACTION_SEND);
+                    share.setType("application/pdf");
+                    share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    share.putExtra(Intent.EXTRA_STREAM, uri);
+                    share.setPackage("com.whatsapp");
 
-                File outputFile = new File(Environment.getExternalStoragePublicDirectory
-                        (Environment.DIRECTORY_DOWNLOADS), "sample.pdf");
-
-
-                Uri uri = FileProvider.getUriForFile(Pdfviewer.this, Pdfviewer.this.getPackageName() + ".provider", outputFile);
-
-                Intent share = new Intent();
-                share.setAction(Intent.ACTION_SEND);
-                share.setType("application/pdf");
-                share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                share.putExtra(Intent.EXTRA_STREAM, uri);
-//                share.setPackage("com.whatsapp");
-
-                startActivity(share);
-
-
-
-
-//                File pdf = new File(path);
-//                Intent intent = new Intent();
-//                intent.setAction(Intent.ACTION_SEND);
-//                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(pdf));
-//                intent.setType("application/pdf");
-//                QtNative.activity().startActivity(intent);
-//
-
-
-
+                    startActivity(share);
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
 
             }
         });
-
-
-
-
-
     }
-//    private void displayFromAsset(String assetFileName) {
-//        pdfFileName = assetFileName;
-//
-//        pdfView.fromAsset(SAMPLE_FILE)
-//                .defaultPage(pageNumber)
-//                .enableSwipe(true)
-//                .swipeHorizontal(false)
-////                .onPageChange(this)
-//                .enableAnnotationRendering(true)
-////                .onLoad(this)
-//                .scrollHandle(new DefaultScrollHandle(this))
-//                .load();
-//    }
+
 
 
 }
